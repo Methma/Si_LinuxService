@@ -1,0 +1,34 @@
+#! /bin/bash
+[ -z "$JAVA_HOME" ] && JAVA_HOME="/usr/lib/java/jdk1.8.0_141/"
+WSO2_HOME="/home/methma/wso2si-1.1.0"
+
+# defeine service commands
+startcmd="${WSO2_HOME}/bin/server.sh start"
+restartcmd="${WSO2_HOME}/bin/server.sh restart"
+stopcmd="${WSO2_HOME}/bin/server.sh stop"
+
+case "$1" in
+start)
+   echo "Starting the WSO2 server ..."
+   process_status=0
+   pid=$(cat ${WSO2_HOME}/wso2/server/runtime.pid)
+   while [ "$process_status" -eq "0" ]
+   do
+        sleep 1;
+        ps -p$pid 2>&1 > /dev/null
+        process_status=$?
+   done
+   su -c "env JAVA_HOME=${JAVA_HOME} ${startcmd}" 
+;;
+restart)
+   echo "Re-starting the WSO2 Server ..."
+   su -c "env JAVA_HOME=${JAVA_HOME} ${stopcmd}"
+;;  
+stop)
+   echo "Stopping the WSO2 server ..."
+   su -c "env JAVA_HOME=${JAVA_HOME} ${stopcmd}" 
+;;
+*)
+   echo "Usage: sudo service <PRODUCT_NAME> <start|stop|restart>"
+exit 1
+esac
